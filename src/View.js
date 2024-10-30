@@ -1,7 +1,7 @@
 import { useEffect} from 'react';
 
-import { useMapContext } from '../hooks/useMapContext';
-import { View as OlView } from 'ol';
+import { useMapContext } from './hooks/useMapContext';
+import OLView from 'ol/View.js';
 
 const View = ({ ...props}) => {
   const {map} = useMapContext();
@@ -9,7 +9,7 @@ const View = ({ ...props}) => {
   useEffect(() => {
     if (!map) return;
     map.setView(
-        new OlView({
+        new OLView({
             ...props
         })
     )
@@ -23,4 +23,4 @@ const View = ({ ...props}) => {
 
 };
 
-export default View;
+export {View};

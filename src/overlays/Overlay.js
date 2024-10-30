@@ -1,7 +1,7 @@
-import { Overlay as OlOverlay } from 'ol';
+import Overlay from 'ol/Overlay.js';
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useMapContext } from '../../hooks/useMapContext';
+import { useMapContext } from '../hooks/useMapContext';
 import styled from 'styled-components';
 
 
@@ -42,7 +42,7 @@ const OverLayContentWrapper = styled.div`
 `;
 
 
-const Overlay = (props) => {
+const OverLay = (props) => {
   const { map } = useMapContext();  // Custom map context
   const overlayRef = useRef(null);  // Ref to the DOM element
   // if you need to access the overlay instance within this component then create a ref to it
@@ -51,7 +51,7 @@ const Overlay = (props) => {
   useEffect(() => {
     if (!map || !overlayRef.current) return;
 
-    const overlay = new OlOverlay({
+    const overlay = new Overlay({
       element: overlayRef.current,
       ...props
     });
@@ -74,4 +74,4 @@ const Overlay = (props) => {
   );
 };
 
-export default Overlay;
+export default OverLay;

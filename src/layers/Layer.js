@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import moduleLoader from '../../lib/ModuleLoader';
-import { useMapContext } from '../../hooks/useMapContext';
+import moduleLoader from '../lib/ModuleLoader';
+import { useMapContext } from '../hooks/useMapContext';
 
 const Layer = ({ config }) => {
   const [layer, setLayer] = useState(null);

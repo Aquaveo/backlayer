@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useMapContext } from '../../hooks/useMapContext';
+import { useMapContext } from '../hooks/useMapContext';
 import styled from 'styled-components';
 import { FaLayerGroup, FaTimes } from 'react-icons/fa'; // Import icons
 

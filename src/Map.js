@@ -1,8 +1,9 @@
 import React, { useEffect , useState, useRef } from 'react';
-import MapContext from '../contexts/MapContext';
-import { View, Map as OlMap } from 'ol';
+import MapContext from './contexts/MapContext';
+import OLMap from 'ol/Map.js';
+import View from 'ol/View.js';
 
-export const MapProvider = ({ children, ...props}) => {
+const Map = ({ children, ...props}) => {
 
   const mapRef = useRef();
   const [map, setMap] = useState(null);
@@ -19,7 +20,7 @@ export const MapProvider = ({ children, ...props}) => {
       overlays: []
     };
     
-    let mapObject = new OlMap(options);
+    let mapObject = new OLMap(options);
     mapObject.setTarget(mapRef.current);
     setMap(mapObject);
 
@@ -40,3 +41,5 @@ export const MapProvider = ({ children, ...props}) => {
 
   );
 }
+
+export {Map};

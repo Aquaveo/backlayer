@@ -1,8 +1,19 @@
 {
   "name": "backlayer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Backend-driven approach to render Open layers.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./control": "./dist/control/index.js",
+    "./layer": "./dist/layer/index.js",
+    "./overlay": "./dist/overlay/index.js",
+    "./Map": "./dist/Map.js",
+    "./demo": "./dist/demo/sample.js",
+    "./View": "./dist/View.js",
+    "./useMapContext": "./dist/hooks/useMapContext.js"
+  },
   "scripts": {
     "build": "webpack --mode production"
   },
@@ -21,7 +32,19 @@
   },
   "homepage": "https://github.com/Aquaveo/backlayer#readme",
   "dependencies": {
+    "-": "^0.0.1",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.25.9",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "ol": "^10.2.1",
     "react": "^18.3.1",
+    "react-icons": "^5.3.0",
+    "rollup": "^4.24.2",
+    "rollup-plugin-postcss": "^4.0.2",
+    "save-dev": "^0.0.1-security",
+    "styled-components": "^6.1.13",
     "webpack": "^5.95.0"
   },
   "devDependencies": {

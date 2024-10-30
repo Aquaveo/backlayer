@@ -87,4 +87,4 @@ const LegendControl = ({items}) => {
   );
 };
 
-export { LegendControl };
+export default LegendControl;

@@ -1,17 +1,16 @@
+export {default as Layers} from './layers/Layers';
+export {default as Layer} from './layers/Layer';
 
-export {LegendControl} from './components/controls/Legend/Legend';
-export {default as Controls} from './components/controls/Controls';
-export {LayersControl} from './components/controls/Layers/LayersControl';
+export {default as OverLay} from './overlays/Overlay';
+export {default as Overlays} from './overlays/Overlays';
 
-export {Layers} from './components/layers/Layers';
-export {default as Layer} from './components/layers/Layer';
+export {useMapContext} from './hooks/useMapContext';
 
-export {default as Overlay} from './components/overlays/Overlay';
-export {default as Overlays} from './components/overlays/Overlays';
+export {default as LegendControl} from './control/Legend';
+export {default as Controls} from './control/Controls';
+export {LayersControl} from './control/LayersControl';
 
-export {default as View} from './components/View';
 
-export {DefaultLayerConfig, DefaultViewConfig,DefaultMapConfig, DefaultLegend, DefaultOverlays} from './data/defaults';
-
-export {MapProvider} from './providers/MapProvider';
-export {useMapContext} from './contexts/MapContext';
+export {View} from './View';
+export {DemoLayers, DemoViewConfig, DemoMapConfig, DemoLegend, DemoOverlays} from './demo/sample';
+export {Map} from './Map';

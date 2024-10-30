@@ -3,7 +3,7 @@ import { fromLonLat } from "ol/proj";
 
 
 //Map Config
-const DefaultMapConfig = {
+const DemoMapConfig = {
   className: "ol-map",
   style: {
     width: "100%", 
@@ -13,14 +13,14 @@ const DefaultMapConfig = {
 
 
 // View Config
-const DefaultViewConfig = {
+const DemoViewConfig = {
     center: fromLonLat([-110.875, 37.345]),
     zoom: 5
 };
 
 
 // Array of layer configurations
-const DefaultLayerConfig = [
+const DemoLayers = [
     {
         type: "WebGLTile",
         props: {
@@ -88,7 +88,7 @@ const DefaultLayerConfig = [
 ];
 
 
-const DefaultLegend = [
+const DemoLegend = [
     {
       label: "Major Flood",
       color: "#cc33ff"
@@ -128,7 +128,7 @@ const DefaultLegend = [
   ];
   
 
-const DefaultOverlays = [
+const DemoOverlays = [
   {
     div_id: "overlay-1",
     div_id: "modal-overlay",
@@ -142,9 +142,9 @@ const DefaultOverlays = [
 
 
 export { 
-  DefaultLayerConfig, 
-  DefaultViewConfig, 
-  DefaultMapConfig,
-  DefaultLegend,
-  DefaultOverlays
+  DemoLayers, 
+  DemoViewConfig, 
+  DemoMapConfig,
+  DemoLegend,
+  DemoOverlays
 };
