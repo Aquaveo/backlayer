@@ -9,7 +9,6 @@ const Map = ({ children, ...props}) => {
   const [map, setMap] = useState(null);
 
   useEffect(() => {
-    console.log(props)
     let options = {
       view: new View({
         center: [0, 0],
@@ -32,13 +31,12 @@ const Map = ({ children, ...props}) => {
     <MapContext.Provider value={{ map }}>
         <div 
           ref={mapRef} 
-          className= {props.className}
-          style={props.style}
+          className= {props.className || 'ol-map'}
+          style={props.style || { width: '100%', height: '100vh' }}
         >
           {children}
         </div>
     </MapContext.Provider>
-
   );
 }
 

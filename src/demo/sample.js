@@ -61,8 +61,8 @@ const DemoLayers = [
           source:{
             type: "Vector",
             props:{
-              // url: 'https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Parks_and_Open_Space/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson',
-              url: 'https://maps.water.noaa.gov/server/rest/services/rfc/rfc_max_forecast/MapServer/0/query?where=1%3D1&outFields=*&f=geojson',
+              url: 'https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Parks_and_Open_Space/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson',
+              // url: 'https://maps.water.noaa.gov/server/rest/services/rfc/rfc_max_forecast/MapServer/0/query?where=1%3D1&outFields=*&f=geojson',
               format: {
                 type: "GeoJSON",
                 props: {}
@@ -131,7 +131,7 @@ const DemoLegend = [
 const DemoOverlays = [
   {
     div_id: "overlay-1",
-    div_id: "modal-overlay",
+    div_class: "modal-overlay",
     autoPan: {
       animation: {
         duration: 250,
