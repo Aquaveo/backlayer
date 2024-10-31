@@ -1,9 +1,18 @@
-[![npm version](https://badge.fury.io/js/angular2-expandable-list.svg)](https://badge.fury.io/js/angular2-expandable-list)
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+[//]: <> (start placeholder for auto-badger)
+
+[![version](https://img.shields.io/npm/v/backlayer.svg?style=flat-square)](https://npmjs.org/backlayer)
+[![min size](https://img.shields.io/bundlephobia/min/backlayer?style=flat-square)](https://bundlephobia.com/result?p=backlayer)
+[![mingzip size](https://img.shields.io/bundlephobia/minzip/backlayer)](https://bundlephobia.com/result?p=backlayer)
+[![license](https://img.shields.io/npm/l/backlayer?color=%23007a1f&style=flat-square)](https://github.com/Aquaveo/backlayer/blob/master/LICENSE)
+
+[![stargazers](https://img.shields.io/github/stars/Aquaveo/backlayer?style=social)](https://github.com/Aquaveo/backlayer/stargazers)
+[![number of forks](https://img.shields.io/github/forks/Aquaveo/backlayer?style=social)](https://github.com/Aquaveo/backlayer/fork)
+
+###### :heart: to [auto badger](https://github.com/technikhil314/auto-badger) for making badging simple
 
 # Backlayer
 
-> The BackLayer (Open Layer Components Backend Driven) is a POC package that allows to build npm components dynamically, based on dictionaries taht are send through a backend engine. This package is used to help with the creation of Tethys plugins, so the backend part of the plugin (usually an intake driver) can reference a react UI component(which will use the `backlayer` package if any Open Layers capability is needed)
+The BackLayer (Open Layer Components Backend Driven) is a POC package that allows to build npm components dynamically, based on dictionaries taht are send through a backend engine. This package is used to help with the creation of Tethys plugins, so the backend part of the plugin (usually an intake driver) can reference a react UI component(which will use the `backlayer` package if any Open Layers capability is needed)
 
 ## Prerequisites
 
