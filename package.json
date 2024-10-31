@@ -6,13 +6,7 @@
   "module": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./control": "./dist/control/index.js",
-    "./layer": "./dist/layer/index.js",
-    "./overlay": "./dist/overlay/index.js",
-    "./Map": "./dist/Map.js",
-    "./demo": "./dist/demo/sample.js",
-    "./View": "./dist/View.js",
-    "./useMapContext": "./dist/hooks/useMapContext.js"
+    "./demo": "./dist/demo/sample.js"
   },
   "scripts": {
     "build": "webpack --mode production"

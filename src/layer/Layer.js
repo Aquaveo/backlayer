@@ -36,7 +36,7 @@ const Layer = ({ config }) => {
     };
   }, [config, map]);
 
-  return null; // Layers are managed by OpenLayers; no need to render anything
+  return null;
 };
 
 export default Layer;

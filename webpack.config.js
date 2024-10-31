@@ -5,18 +5,12 @@ const webpack = require('webpack');
 module.exports = {
   entry: {
     index: './src/index.js',
-    'control/index': './src/control/index.js',
-    'layer/index': './src/layers/index.js',
-    'overlay/index': './src/overlays/index.js',
-    Map: './src/Map.js',
-    View: './src/View.js',
-    // 'demo/sample': './src/demo/sample.js',
-    'hooks/useMapContext': './src/hooks/useMapContext.js',
+    'demo/sample': './src/demo/sample.js',
   },
   mode: 'production',  
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js', // Output each entry as a separate file
+    filename: '[name].js', // This will output 'demo/sample.js' in 'dist/demo/sample.js'
     libraryTarget: 'commonjs2',
   },
   module: {
@@ -39,10 +33,6 @@ module.exports = {
   ],
   resolve: {
     extensions: ['.js', '.jsx'],
-    alias: {
-        'react': path.resolve(__dirname, './node_modules/react'),
-        'react-dom': path.resolve(__dirname, './node_modules/react-dom')
-    }
   },
   optimization: {
     minimize: true,
