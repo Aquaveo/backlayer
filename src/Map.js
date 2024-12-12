@@ -33,6 +33,7 @@ const Map = ({ children, ...props}) => {
           ref={mapRef} 
           className= {props.className || 'ol-map'}
           style={props.style || { width: '100%', height: '100vh' }}
+          {...props}
         >
           {children}
         </div>
