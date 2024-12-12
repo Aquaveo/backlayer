@@ -1,6 +1,6 @@
 {
   "name": "backlayer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Backend-driven approach to render Open layers.",
   "main": "dist/index.js",
   "module": "dist/index.js",
