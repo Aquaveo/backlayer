@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import moduleLoader from '../lib/ModuleLoader';
-import { useMapContext } from '../hooks/useMapContext';
+import { useEffect, useState } from "react";
+import moduleLoader from "../lib/ModuleLoader";
+import { useMapContext } from "../hooks/useMapContext";
 
 const Layer = ({ config }) => {
   const [layer, setLayer] = useState(null);
@@ -22,7 +22,7 @@ const Layer = ({ config }) => {
           }
         }
       } catch (error) {
-        console.error('Error loading layer:', error);
+        console.error("Error loading layer:", error);
       }
     };
 

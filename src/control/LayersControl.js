@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useMapContext } from '../hooks/useMapContext';
+import React, { useState, useEffect } from "react";
+import { useMapContext } from "../hooks/useMapContext";
 
-import styled from 'styled-components';
-import { FaLayerGroup, FaTimes } from 'react-icons/fa'; // Import icons
+import styled from "styled-components";
+import { FaLayerGroup, FaTimes } from "react-icons/fa"; // Import icons
 
 const ControlWrapper = styled.div`
   position: absolute;
@@ -12,12 +12,12 @@ const ControlWrapper = styled.div`
 
 const LayerControlContainer = styled.div`
   background-color: white;
-  padding: ${(props) => (props.$isexpanded ? '10px' : '5px')};
+  padding: ${(props) => (props.$isexpanded ? "10px" : "5px")};
   z-index: 1000;
   border: 1px solid #ccc;
   border-radius: 4px;
-  width: ${(props) => (props.$isexpanded ? '200px' : '40px')};
-  height: ${(props) => (props.$isexpanded ? 'auto' : '40px')};
+  width: ${(props) => (props.$isexpanded ? "200px" : "40px")};
+  height: ${(props) => (props.$isexpanded ? "auto" : "40px")};
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,7 +42,7 @@ const CloseButton = styled.button`
   right: 5px;
 `;
 
-const LayersControl = () => {
+const LayersControl = ({ items }) => {
   const { map } = useMapContext();
   const [layers, setLayers] = useState([]);
   const [isexpanded, setisexpanded] = useState(false);
@@ -53,7 +53,7 @@ const LayersControl = () => {
       const mapLayers = map.getLayers().getArray();
       setLayers(mapLayers);
     }
-  }, [map]); // This effect runs whenever `map` changes
+  }, [map, items]); // This effect runs whenever `map` changes
 
   // If `map` is not available yet, you can show a loading state or nothing
   if (!map) {
@@ -69,13 +69,20 @@ const LayersControl = () => {
             <CloseButton onClick={() => setisexpanded(false)}>
               <FaTimes />
             </CloseButton>
-            <div style={{ marginTop: '20px', width: '100%' }}>
+            <div style={{ marginTop: "20px", width: "100%" }}>
               {layers.map((layer, index) => {
-                const layerName = layer.get('name') ?? `Layer ${index + 1}`;
+                const layerName = layer.get("name") ?? `Layer ${index + 1}`;
                 const visible = layer.getVisible() ?? true;
                 return (
-                  <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center' }}>
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    <label style={{ display: "flex", alignItems: "center" }}>
                       <input
                         type="checkbox"
                         checked={visible}
@@ -84,7 +91,7 @@ const LayersControl = () => {
                           // Update the local state to force re-render
                           setLayers([...layers]);
                         }}
-                        style={{ marginRight: '8px' }}
+                        style={{ marginRight: "8px" }}
                       />
                       <span>{layerName}</span>
                     </label>
@@ -104,4 +111,4 @@ const LayersControl = () => {
   );
 };
 
-export { LayersControl };
+export default LayersControl;
