@@ -13,11 +13,13 @@ const Map = ({
   layers,
   legend,
   layerControl,
+  onMapClick,
   children,
 }) => {
   const [map, setMap] = useState();
   const [errorMessage, setErrorMessage] = useState("");
   const mapRef = useRef();
+  const onMapClickCurrent = useRef();
 
   const defaultMapConfig = {
     className: "ol-map",
@@ -71,7 +73,7 @@ const Map = ({
     ];
     const customBaseLayers = layers ? layers : defaultBaseLayers;
     const mapLayers = [...map.getLayers().getArray()];
-    mapLayers.forEach((mappLayer) => map.removeLayer(mappLayer));
+    mapLayers.forEach((mapLayer) => map.removeLayer(mapLayer));
 
     customBaseLayers.forEach((layerConfig) => {
       moduleLoader(layerConfig)
@@ -85,6 +87,16 @@ const Map = ({
           );
         });
     });
+
+    if (onMapClickCurrent.current) {
+      map.un("singleclick", onMapClickCurrent.current);
+    }
+    onMapClickCurrent.current = function (evt) {
+      onMapClick(map, evt);
+    };
+    map.on("singleclick", onMapClickCurrent.current);
+
+    map.renderSync();
   }, [map, layers]);
 
   return (

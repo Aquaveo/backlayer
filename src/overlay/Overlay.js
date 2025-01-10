@@ -1,9 +1,7 @@
-import Overlay from 'ol/Overlay.js';
-import React, { useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
-import { useMapContext } from '../hooks/useMapContext';
-import styled from 'styled-components';
-
+import Overlay from "ol/Overlay.js";
+import { useEffect, useRef } from "react";
+import { useMapContext } from "../hooks/useMapContext";
+import styled from "styled-components";
 
 const OverLayContentWrapper = styled.div`
   position: absolute;
@@ -19,7 +17,7 @@ const OverLayContentWrapper = styled.div`
   &:before {
     bottom: -20px;
     border: solid transparent;
-    content: '';
+    content: "";
     height: 0;
     width: 0;
     position: absolute;
@@ -41,10 +39,9 @@ const OverLayContentWrapper = styled.div`
   }
 `;
 
-
 const OverLay = (props) => {
-  const { map } = useMapContext();  // Custom map context
-  const overlayRef = useRef(null);  // Ref to the DOM element
+  const { map } = useMapContext(); // Custom map context
+  const overlayRef = useRef(null); // Ref to the DOM element
   // if you need to access the overlay instance within this component then create a ref to it
   // const olOverlayRef = useRef(null); // Ref to the OpenLayers Overlay instance
   // olOverlayRef.current
@@ -53,7 +50,7 @@ const OverLay = (props) => {
 
     const overlay = new Overlay({
       element: overlayRef.current,
-      ...props
+      ...props,
     });
 
     map.addOverlay(overlay);
@@ -65,7 +62,7 @@ const OverLay = (props) => {
     };
   }, [map]);
 
-  return(
+  return (
     <OverLayContentWrapper>
       <div id={props.div_id} className={props.div_class} ref={overlayRef}>
         {props.children}
