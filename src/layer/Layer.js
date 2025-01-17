@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import moduleLoader from "../lib/ModuleLoader";
 import { useMapContext } from "../hooks/useMapContext";
+import { convertXML } from "simple-xml-to-json";
+import { transform } from "ol/proj";
+
+function transformCoordinates(coords, sourceProj, destProj) {
+  return coords.map((polygon) => {
+    return polygon.map((ring) => {
+      return ring.map((coord) => {
+        return transform(coord, sourceProj, destProj);
+      });
+    });
+  });
+}
 
 const Layer = ({ config }) => {
   const [layer, setLayer] = useState(null);
@@ -39,33 +51,25 @@ const Layer = ({ config }) => {
   return null;
 };
 
-export function getFeatureQueryUrl(layerConfiguration) {
-  const layerUrl = layerConfiguration.props.source.props.url;
-  if (layerUrl.includes("MapServer")) {
-    return layerUrl + "/identify";
-  } else {
-    throw Error(`${url} is not currently configured to be queried`);
-  }
-}
-
-export async function getLayerAttributes(url, layerType) {
-  let attributes;
-  if (url.includes("MapServer")) {
-    attributes = await getESRILayerAttributes(url);
-  } else {
-    throw Error(`${url} is not currently configured to be queried`);
-  }
-
-  return attributes;
-}
-
-export async function queryLayerFeatures(layerInfo, map, coordinate) {
+export async function queryLayerFeatures(layerInfo, map, coordinate, pixel) {
   let features;
-  const layerUrl = layerInfo.configuration.props.source.props.url;
+  const layerUrl = layerInfo.configuration.props.source.props?.url ?? "";
+  const layerParams = layerInfo.configuration.props.source.props.params;
+  const layerType = layerInfo.configuration.props.source.type;
   if (layerUrl.includes("MapServer")) {
     features = await getESRILayerFeatures(layerUrl, map, coordinate);
+  } else if (layerType === "ImageWMS") {
+    features = await getImageWMSLayerFeatures(
+      layerUrl,
+      layerParams,
+      map,
+      coordinate,
+      pixel
+    );
+  } else if (layerType === "GeoJSON") {
+    features = await getGeoJSONLayerFeatures(map, pixel, coordinate);
   } else {
-    throw Error(`${layerUrl} is not currently configured to be queried`);
+    throw Error(`${layerType} is not currently configured to be queried`);
   }
 
   return features;
@@ -76,31 +80,162 @@ async function getESRILayerFeatures(layerUrl, map, coordinate) {
   // Build the identify request parameters
   const params = new URLSearchParams({
     f: "json",
-    tolerance: 50, // Pixel tolerance
+    tolerance: 10, // Pixel tolerance
     returnGeometry: true,
     geometryType: "esriGeometryPoint",
-    sr: 3857,
+    sr: map.getView().getProjection().getCode(),
     geometry: coordinate.join(","),
     mapExtent: map.getView().calculateExtent().join(","),
-    imageDisplay: "800,600,96",
+    imageDisplay: map
+      .getSize()
+      .concat(map.getView().getResolution())
+      .join(", "),
   });
 
   try {
     const featureQuery = await fetch(`${featureQueryUrl}?${params.toString()}`);
     const featureQueryJson = await featureQuery.json();
-    if (featureQueryJson.results && featureQueryJson.results.length > 0) {
-      return featureQueryJson.results;
-    } else {
-      alert(
-        "River not found. Try to zoom in and be precise when clicking the map."
-      );
-    }
+    return featureQueryJson.results;
   } catch {
     (error) => {
       console.error("Identify request failed:", error);
       return null;
     };
   }
+}
+
+async function getImageWMSLayerFeatures(
+  layerUrl,
+  layerParams,
+  map,
+  coordinate,
+  pixel
+) {
+  const lowercaseLayerParams = Object.keys(layerParams).reduce((acc, key) => {
+    acc[key.toLowerCase()] = layerParams[key];
+    return acc;
+  }, {});
+  const [mapWidth, mapHeight] = map.getSize();
+  const mapSRS = map.getView().getProjection().getCode();
+  // Build the identify request parameters
+  const params = new URLSearchParams({
+    INFO_FORMAT: "application/json",
+    LAYERS: lowercaseLayerParams.layers ?? "",
+    QUERY_LAYERS: lowercaseLayerParams.layers ?? "",
+    X: pixel[0],
+    Y: pixel[1],
+    SRS: mapSRS,
+    BBOX: map.getView().calculateExtent().join(","),
+    HEIGHT: mapHeight,
+    WIDTH: mapWidth,
+    REQUEST: "GetFeatureInfo",
+    VERSION: "1.1.1",
+  });
+  try {
+    const featureQuery = await fetch(`${layerUrl}?${params.toString()}`);
+    const featureQueryJson = await featureQuery.json();
+    const features = [];
+    const featuresSRSRaw =
+      featureQueryJson.crs.properties.name.match(/crs:(.*)/)[1];
+    const featuresSRSFormatted = featuresSRSRaw.replace("::", ":");
+
+    for (const feature of featureQueryJson.features) {
+      let transformedCoords = feature.geometry.coordinates;
+      if (mapSRS !== featuresSRSFormatted) {
+        transformedCoords = transformCoordinates(
+          transformedCoords,
+          featuresSRSFormatted,
+          mapSRS
+        );
+      }
+      const updatedGeometry = {
+        ...feature.geometry,
+        ...{ coordinates: transformedCoords },
+      };
+      features.push({
+        layerName: feature.id.split(".")[0],
+        attributes: feature.properties,
+        geometry: updatedGeometry,
+      });
+    }
+    return features;
+  } catch {
+    (error) => {
+      console.error("Identify request failed:", error);
+      return null;
+    };
+  }
+}
+
+async function getGeoJSONLayerFeatures(map, pixel, coordinate) {
+  const resolution = map.getView().getResolution();
+  const features = [];
+  map.forEachFeatureAtPixel(pixel, function (feature, layer) {
+    if (feature) {
+      let clickedGeometry = null;
+      const { geometry, ...properties } = feature.getProperties();
+      if (geometry.getType() === "GeometryCollection") {
+        geometry.getGeometries().forEach((geom) => {
+          const type = geom.getType();
+
+          if (
+            type === "Point" ||
+            type === "LineString" ||
+            type === "MultiLineString"
+          ) {
+            const closestPoint = geom.getClosestPoint(coordinate);
+            const distance =
+              Math.sqrt(
+                Math.pow(closestPoint[0] - coordinate[0], 2) +
+                  Math.pow(closestPoint[1] - coordinate[1], 2)
+              ) / resolution; // to get pixel distance
+            const threshold = 10; // pixel threshold
+            if (distance < threshold) {
+              clickedGeometry = geom;
+            }
+          } else {
+            if (geom.intersectsCoordinate(coordinate)) {
+              clickedGeometry = geom;
+            }
+          }
+        });
+      } else {
+        clickedGeometry = geometry;
+      }
+      if (clickedGeometry) {
+        features.push({
+          layerName: layer.getProperties().name,
+          attributes: properties,
+          geometry: {
+            type: clickedGeometry.getType(),
+            coordinates: clickedGeometry.getCoordinates(),
+          }, // {x:"", y:"", spatialreference: {}}, {type: "MultiPolygon", coordinates: [[],[],[],[]]}
+        });
+      }
+    }
+  });
+
+  return features;
+}
+
+export async function getLayerAttributes(layerInfo) {
+  let attributes;
+  const layerUrl = layerInfo.url;
+  const layerParams = layerInfo.params;
+  const layerType = layerInfo.layerType;
+  const layerGeoJSON = layerInfo?.geojson ?? {};
+  const layerName = layerInfo.name;
+  if (layerUrl.includes("MapServer")) {
+    attributes = await getESRILayerAttributes(layerUrl);
+  } else if (layerType === "ImageWMS") {
+    attributes = await getImageWMSLayerAttributes(layerUrl, layerParams);
+  } else if (layerType === "GeoJSON") {
+    attributes = await getGeoJSONLayerAttributes(layerGeoJSON, layerName);
+  } else {
+    throw Error(`${layerUrl} is not currently configured to be queried`);
+  }
+
+  return attributes;
 }
 
 async function getESRILayerAttributes(url) {
@@ -129,6 +264,77 @@ async function getESRILayerAttributes(url) {
     }
     layerAttributes[layerName] = specificLayerFieds;
   }
+
+  return layerAttributes;
+}
+
+async function getImageWMSLayerAttributes(layerUrl, layerParams) {
+  const lowercaseLayerParams = Object.keys(layerParams).reduce((acc, key) => {
+    acc[key.toLowerCase()] = layerParams[key];
+    return acc;
+  }, {});
+
+  const layerInfoParams = new URLSearchParams({
+    service: "WFS",
+    request: "describeFeatureType",
+    typename: lowercaseLayerParams.layers ?? "",
+  });
+  const layerInfoUrl = `${layerUrl}?${layerInfoParams.toString()}`;
+  let layerInfoResponse;
+  try {
+    layerInfoResponse = await fetch(layerInfoUrl);
+  } catch (e) {
+    throw new Error(
+      "Failed to fetch attribute data. Check to make sure layers exist."
+    );
+  }
+  const layerInfoText = await layerInfoResponse.text();
+  if (layerInfoText.includes("ows:ExceptionReport")) {
+    throw new Error(
+      "Failed to fetch attribute data. Check to make sure WFS extension is enabled on layers or that layer names are correct."
+    );
+  }
+  const layerInfoJSON = convertXML(layerInfoText);
+  const layerAttributes = {};
+
+  const allLayersInfo = layerInfoJSON["xsd:schema"].children.filter((obj) =>
+    obj.hasOwnProperty("xsd:complexType")
+  );
+  for (const { "xsd:complexType": layerInfo } of allLayersInfo) {
+    const layerName = layerInfo.name.replace("Type", "");
+    const fields =
+      layerInfo.children[0]["xsd:complexContent"].children[0]["xsd:extension"]
+        .children[0]["xsd:sequence"].children;
+
+    const attributes = fields.map((obj) => ({
+      name: obj["xsd:element"]?.name,
+      alias: obj["xsd:element"]?.name,
+    }));
+    layerAttributes[layerName] = attributes;
+  }
+
+  return layerAttributes;
+}
+
+async function getGeoJSONLayerAttributes(layerGeoJSON, layerName) {
+  const layerAttributes = {};
+  const attributes = [];
+  const geoJSON =
+    typeof layerGeoJSON === "object" ? layerGeoJSON : JSON.parse(layerGeoJSON);
+  const layerFeatures = geoJSON?.features ?? [];
+  const propertyKeys = layerFeatures
+    .map((feature) =>
+      feature.properties ? Object.keys(feature.properties) : []
+    )
+    .flat();
+  const uniquePropertyKeys = [...new Set(propertyKeys)];
+  for (const uniquePropertyKey of uniquePropertyKeys) {
+    attributes.push({
+      name: uniquePropertyKey,
+      alias: uniquePropertyKey,
+    });
+  }
+  layerAttributes[layerName] = attributes;
 
   return layerAttributes;
 }

@@ -6,6 +6,15 @@ import Controls from "./control/Controls";
 import LayersControl from "./control/LayersControl";
 import LegendControl from "./control/Legend";
 import Alert from "react-bootstrap/Alert";
+import styled from "styled-components";
+
+const StyledAlert = styled(Alert)`
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 1000;
+`;
 
 const Map = ({
   mapConfig,
@@ -104,14 +113,14 @@ const Map = ({
       <MapContext.Provider value={{ map }}>
         <div ref={mapRef} {...customMapConfig}>
           {errorMessage && (
-            <Alert
+            <StyledAlert
               key="failure"
               variant="danger"
               dismissible={true}
               onClose={() => setErrorMessage("")}
             >
               {errorMessage}
-            </Alert>
+            </StyledAlert>
           )}
           <Controls>
             {layerControl && <LayersControl items={layerControl} />}

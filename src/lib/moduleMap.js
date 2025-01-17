@@ -5,6 +5,7 @@ export const moduleMap = {
   "ol/source/ImageTile.js": () => import("ol/source/ImageTile.js"),
   "ol/source/ImageArcGISRest.js": () => import("ol/source/ImageArcGISRest.js"),
   "ol/source/Vector.js": () => import("ol/source/Vector.js"),
+  "ol/source/ImageWMS.js": () => import("ol/source/ImageWMS.js"),
   "ol/format/GeoJSON.js": () => import("ol/format/GeoJSON.js"),
   "ol/style/Style.js": () => import("ol/style/Style.js"),
   "ol/style/Stroke.js": () => import("ol/style/Stroke.js"),

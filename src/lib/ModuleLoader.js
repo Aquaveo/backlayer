@@ -1,4 +1,6 @@
 import { moduleMap } from "./moduleMap.js";
+import { Vector as VectorSource } from "ol/source.js";
+import GeoJSON from "ol/format/GeoJSON.js";
 
 const moduleCache = {};
 
@@ -11,7 +13,11 @@ const moduleLoader = async (config) => {
 
   try {
     if (moduleCache[type]) {
-      return new moduleCache[type](await resolveProps(props));
+      if (type === "GeoJSON") {
+        return loadGeoJSON(config);
+      } else {
+        return new moduleCache[type](await resolveProps(props));
+      }
     }
     const importModule = getModuleImporter(type);
     const module = await importModule();
@@ -26,7 +32,11 @@ const moduleLoader = async (config) => {
 
     const resolvedProps = await resolveProps(props);
 
-    return new ModuleConstructor(resolvedProps);
+    if (type === "GeoJSON") {
+      return loadGeoJSON(config);
+    } else {
+      return new ModuleConstructor(resolvedProps);
+    }
   } catch (error) {
     console.error(`Failed to load module '${type}':`, error);
     throw error;
@@ -80,6 +90,7 @@ const getModuleImporter = (type) => {
     ImageTile: "ol/source/ImageTile.js",
     ImageArcGISRest: "ol/source/ImageArcGISRest.js",
     Vector: "ol/source/Vector.js",
+    ImageWMS: "ol/source/ImageWMS.js",
     GeoJSON: "ol/format/GeoJSON.js",
     Style: "ol/style/Style.js",
     Stroke: "ol/style/Stroke.js",
@@ -100,6 +111,13 @@ const getModuleImporter = (type) => {
   }
 
   return importer;
+};
+
+const loadGeoJSON = (config) => {
+  const vectorSource = new VectorSource({
+    features: new GeoJSON().readFeatures(config.features),
+  });
+  return vectorSource;
 };
 
 export default moduleLoader;
