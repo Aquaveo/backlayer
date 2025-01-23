@@ -1,5 +1,6 @@
 import { moduleMap } from "./moduleMap.js";
-import { Vector as VectorSource } from "ol/source.js";
+import { Vector as VectorSource, VectorTile } from "ol/source.js";
+import MVT from "ol/format/MVT.js";
 import GeoJSON from "ol/format/GeoJSON.js";
 
 const moduleCache = {};
@@ -16,7 +17,11 @@ const moduleLoader = async (config) => {
       if (type === "GeoJSON") {
         return loadGeoJSON(config);
       } else {
-        return new moduleCache[type](await resolveProps(props));
+        const resolvedProps = await resolveProps(props);
+        if (type === "VectorTile") {
+          resolvedProps.format = new MVT();
+        }
+        return new moduleCache[type](resolvedProps);
       }
     }
     const importModule = getModuleImporter(type);
@@ -31,6 +36,9 @@ const moduleLoader = async (config) => {
     moduleCache[type] = ModuleConstructor;
 
     const resolvedProps = await resolveProps(props);
+    if (type === "VectorTile") {
+      resolvedProps.format = new MVT();
+    }
 
     if (type === "GeoJSON") {
       return loadGeoJSON(config);
@@ -87,10 +95,14 @@ const getModuleImporter = (type) => {
     WebGLTile: "ol/layer/WebGLTile.js",
     ImageLayer: "ol/layer/Image.js",
     VectorLayer: "ol/layer/Vector.js",
+    VectorTileLayer: "ol/layer/VectorTile.js",
+    TileLayer: "ol/layer/Tile.js",
     ImageTile: "ol/source/ImageTile.js",
+    VectorTile: "ol/source/VectorTile.js",
     ImageArcGISRest: "ol/source/ImageArcGISRest.js",
     Vector: "ol/source/Vector.js",
     ImageWMS: "ol/source/ImageWMS.js",
+    Raster: "ol/source/Raster.js",
     GeoJSON: "ol/format/GeoJSON.js",
     Style: "ol/style/Style.js",
     Stroke: "ol/style/Stroke.js",

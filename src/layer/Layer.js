@@ -3,6 +3,7 @@ import moduleLoader from "../lib/ModuleLoader";
 import { useMapContext } from "../hooks/useMapContext";
 import { convertXML } from "simple-xml-to-json";
 import { transform } from "ol/proj";
+import { applyStyle } from "ol-mapbox-style";
 
 function transformCoordinates(coords, sourceProj, destProj) {
   return coords.map((polygon) => {
@@ -25,6 +26,9 @@ const Layer = ({ config }) => {
     const loadLayer = async () => {
       try {
         const layerInstance = await moduleLoader(config);
+        if (config.style) {
+          applyStyle(layerInstance, config.style);
+        }
 
         if (isMounted) {
           setLayer(layerInstance);
@@ -220,9 +224,10 @@ async function getGeoJSONLayerFeatures(map, pixel, coordinate) {
 
 export async function getLayerAttributes(layerInfo) {
   let attributes;
-  const layerUrl = layerInfo.url;
-  const layerParams = layerInfo.params;
+  const layerSourceProps = layerInfo.sourceProps;
   const layerType = layerInfo.layerType;
+  const layerParams = layerSourceProps?.params ?? {};
+  const layerUrl = layerSourceProps?.url ?? "";
   const layerGeoJSON = layerInfo?.geojson ?? {};
   const layerName = layerInfo.name;
   if (layerUrl.includes("MapServer")) {

@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
+import ReactDOM from "react-dom";
 import MapContext from "./contexts/MapContext";
 import { Map as OlMap, View } from "ol";
+import Overlay from "ol/Overlay";
 import moduleLoader from "./lib/ModuleLoader";
 import Controls from "./control/Controls";
 import LayersControl from "./control/LayersControl";
 import LegendControl from "./control/Legend";
 import Alert from "react-bootstrap/Alert";
 import styled from "styled-components";
+import { applyStyle } from "ol-mapbox-style";
 
 const StyledAlert = styled(Alert)`
   position: absolute;
@@ -14,6 +17,42 @@ const StyledAlert = styled(Alert)`
   left: 1rem;
   right: 1rem;
   z-index: 1000;
+`;
+
+const OverLayContentWrapper = styled.div`
+  position: absolute;
+  background-color: white;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  min-width: 200px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transform: translate(-50%, -100%);
+
+  &:after,
+  &:before {
+    bottom: -20px;
+    border: solid transparent;
+    content: "";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+  }
+
+  &:after {
+    border-top-color: white;
+    border-width: 10px;
+    left: 50%;
+    margin-left: -10px;
+  }
+
+  &:before {
+    border-top-color: #ccc;
+    border-width: 11px;
+    left: 50%;
+    margin-left: -11px;
+  }
 `;
 
 const Map = ({
@@ -28,7 +67,10 @@ const Map = ({
   const [map, setMap] = useState();
   const [errorMessage, setErrorMessage] = useState("");
   const mapRef = useRef();
+  const popupRef = useRef(null);
   const onMapClickCurrent = useRef();
+  const popupCurrent = useRef();
+  const [popupContent, setPopupContent] = useState(null);
 
   const defaultMapConfig = {
     className: "ol-map",
@@ -88,6 +130,15 @@ const Map = ({
       moduleLoader(layerConfig)
         .then((layerInstance) => {
           map.addLayer(layerInstance);
+          if (layerConfig.style) {
+            applyStyle(
+              layerInstance,
+              layerConfig.style,
+              layerConfig.props.name
+            ).catch((err) => {
+              console.log(err);
+            });
+          }
         })
         .catch((err) => {
           console.log(err);
@@ -97,11 +148,26 @@ const Map = ({
         });
     });
 
+    const popup = new Overlay({
+      element: popupRef.current,
+      autoPan: true,
+      autoPanAnimation: {
+        duration: 250,
+      },
+      autoPanMargin: 20,
+    });
+    if (popupCurrent.current) {
+      map.removeOverlay(popupCurrent.current);
+    }
+    popupCurrent.current = popup;
+    map.addOverlay(popup);
+
     if (onMapClickCurrent.current) {
       map.un("singleclick", onMapClickCurrent.current);
     }
     onMapClickCurrent.current = function (evt) {
-      onMapClick(map, evt);
+      onMapClick(map, evt, setPopupContent);
+      popup.setPosition(evt.coordinate);
     };
     map.on("singleclick", onMapClickCurrent.current);
 
@@ -128,6 +194,14 @@ const Map = ({
           </Controls>
           {children}
         </div>
+        <OverLayContentWrapper
+          id="map-popup"
+          className="map-popup"
+          ref={popupRef}
+        >
+          {popupContent &&
+            ReactDOM.createPortal(popupContent, popupRef.current)}
+        </OverLayContentWrapper>
       </MapContext.Provider>
     </>
   );
